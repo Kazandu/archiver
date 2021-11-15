@@ -7,6 +7,7 @@ config = configparser.ConfigParser()
 pwd=os.getcwd()
 from datetime import datetime
 datumHeute = datetime.date(datetime.now()).strftime("%Y%m%d")
+import time
 
 if (os.path.isfile(pwd+"/config.ini")):
     config.read(pwd+'/config.ini')
@@ -35,6 +36,7 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 linkWriteAdd = open (dlDir+"/batch.txt", "a+")
                 linkWriteAdd.write(line)
                 linkWriteAdd.close()
+                time.sleep(2) 
 
                 logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
                 logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+videoID+"] converted, adding to downloader and removing queue...\n")
@@ -43,6 +45,7 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 linkWriteRequeue = open (pwd+"/next_queue.txt", "a+")
                 linkWriteRequeue.write(line)
                 linkWriteRequeue.close()
+                time.sleep(2)
                 
                 logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
                 logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+videoID+"] not converted yet, keeping in queue...\n")
