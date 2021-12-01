@@ -17,3 +17,7 @@ Downloader
 - Downloads youtube videos one by one from dl_batch.txt
 - Converts youtube .srv3 subtitles with close to original formatting to .ass with [YTSubConverter](https://github.com/arcusmaximus/YTSubConverter)
 - Optional execution of post download scripts (Example with rclone included, useful for VPS's with not enough storage)
+
+
+
+Thanks to the yt-dl/yt-dlp Team, kethsar for ytarchive and arcusmaximus for YTSubConverter, you guys make archiving Youtube videos really easy!
