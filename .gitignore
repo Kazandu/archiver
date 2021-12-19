@@ -1,4 +1,7 @@
 logs/
 config.ini
+watcher_channels.ini
 check_batch.txt
 next_queue.txt
+plugins/postexec/postexec.py
+plugins/postexec/rclone_move.ini
