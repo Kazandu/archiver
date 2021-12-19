@@ -8,7 +8,6 @@ pwd=os.getcwd()
 from datetime import datetime
 datumHeute = datetime.date(datetime.now()).strftime("%Y%m%d")
 import time
-
 if (os.path.isfile(pwd+"/config.ini")):
     config.read(pwd+'/config.ini')
     dlDir = config['CHECKER']['downloaddir']
