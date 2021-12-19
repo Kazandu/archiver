@@ -1,6 +1,8 @@
 # archiver
 A tool to automate the workflow of archiving youtube videos.
 
+--ignore-archive Ignores the archivelist.txt (For redownloading Videos)
+
 ### Features
 
 Watchdog

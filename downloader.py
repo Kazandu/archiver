@@ -92,7 +92,7 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
         'progress_hooks': [my_hook],
     }
 
-    if ("ignore-archive" not in sys.argv):
+    if ("--ignore-archive" not in sys.argv):
         ydl_opts.update({'download_archive': archivefile,})
         
 
@@ -142,7 +142,7 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
                             else:
                                 
                                 #rclone_move.rclonemove(FinalFile,logWriter,dldir)
-                                postexec.executePostexe(FinalFile,logWriter,dldir)
+                                postexec.executePostexec(FinalFile,logWriter,dldir)
                                 
                                 #STATT HIER DIRECT DEN RCLONE UPLOAD MACHEN EINFACH HIER EINE ANDERE .py STARTEN LASSEN, VARs ÜBERGEBEN UND DANN IN DER CONFIG MITGEBEN WELCHE .py GESTARTET WERDEN SOLL, Z.B EINFACH EINEN ORDNER PLUGINS MACHEN UND DA EIN 
                                 #FERTIGES RCLONE PLUGIN LIEFERN
