@@ -34,7 +34,8 @@ def rclonemove(filetomove,logWriter,dldir):
         logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [ERROR] - Started without rclone config File, please rename TEMPLATErclone_move.ini to rclone_move.ini and fill the parameters.\n")
         quit()
     logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - [PostExec] - Starting Rclone upload...\n")   
-    PostDLCall = subprocess.Popen(["rclone", "move", f"{filetomove}", f"{dstdir}", "-P"],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
+    print(filetomove)
+    PostDLCall = subprocess.Popen(["rclone", "move", f"{filetomove}", f"{dstdir}"],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, encoding='utf-8')
     PostDLCall_return,PostDLCall_error = PostDLCall.communicate()
     #print(PostDLCall_return)
     if (PostDLCall_error):

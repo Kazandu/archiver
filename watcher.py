@@ -11,7 +11,7 @@ import time
 import pycurl
 from io import BytesIO
 
-def pycurscraper(scrapeUrl):
+def YTComTabPycurlScraper(scrapeUrl):
     output = BytesIO()
     c = pycurl.Curl()
     c.setopt(pycurl.URL, scrapeUrl)
@@ -22,6 +22,25 @@ def pycurscraper(scrapeUrl):
     c.setopt(pycurl.COOKIEFILE, YTcookie)
     c.perform()
     scrapedHTML = output.getvalue()
+    regexstageone = re.findall('(videoId":")(.{11})', str(scrapedHTML))
+    for i in regexstageone:
+        stageonetostring = str(i)
+        regexstagetwo = re.search("(.*)(.{11})(\')", stageonetostring)
+        IdList= list(dict.fromkeys(regexstagetwo[2]))
+        #old
+        #linkWriteAdd = open ("videoIDoutput.txt", "a+")
+        #linkWriteAdd.write(regexstagetwo[2]+"\n")
+        #linkWriteAdd.close()
+    lines_seen = set()
+    outfile = open("videoIDoutputdeduped.txt", "w")
+    for line in open("videoIDoutput.txt", "r"):
+            if line not in lines_seen: # not a duplicate
+                    outfile.write(line)
+                    lines_seen.add(line)
+    outfile.close()
+    with open("videoIDoutputdeduped.txt", 'r') as fin:
+        print(fin.read())
+
 
 
 

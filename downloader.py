@@ -68,13 +68,16 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
         'merge_output_format': 'mkv',
         'writesubtitles': True,
         'subtitlesformat': 'srv3',
-        'subtitle': '--write-sub --sub-lang en',
+        'subtitle': '--write-sub --sub-lang en,-live_chat',
+        'compat_opts': 'no-live-chat',
         #'subtitleslangs': 'en',
         'writethumbnail': True,
         'cookiefile': cookiefile,
         'retries': float('inf'),
         'throttledratelimit': 100000,
-        'trim_file_name':200,
+        'trim_file_name':50,
+        #Old tmpl with video title below, outdated
+        #'outtmpl': dldir+"%(channel)s-(%(id)s)-%(upload_date)s - %(title)s.%(ext)s",
         'outtmpl': dldir+"%(channel)s-(%(id)s)-%(upload_date)s - %(title)s.%(ext)s",
         #'writedescription': True,
         #'writeinfojson': True,
@@ -91,7 +94,6 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
         'logger': MyLogger(),
         'progress_hooks': [my_hook],
     }
-
     if ("--ignore-archive" not in sys.argv):
         ydl_opts.update({'download_archive': archivefile,})
         
@@ -111,9 +113,7 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
                     if (glob.glob(dldir+"/*.srv3")):
                         subfilelist = glob.glob(dldir+"/*.srv3")
                         for subfile in subfilelist:
-                            #YTSubConvCMD = "mono "+pwd+"/postprocessors/YTSubConverter/YTSubConverter.exe --visual "+'"'+subfile+'"'
-                            #YTSubConvCall = subprocess.Popen(YTSubConvCMD, shell=True, stdout=subprocess.PIPE, close_fds=True, universal_newlines=True)
-                            YTSubConvCall = subprocess.Popen(["mono", f"{pwd}/postprocessors/YTSubConverter/YTSubConverter.exe", "--visual", subfile],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
+                            YTSubConvCall = subprocess.Popen(["mono", f"{pwd}/postprocessors/YTSubConverter/YTSubConverter.exe", "--visual", subfile],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, encoding='utf-8')
                             YTSubConvCallCall_return,YTSubConvCallCall_error = YTSubConvCall.communicate()
                             if(logLevel=="DEBUG"):
                                 logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [DEBUG] - [downloader/YTSubConverter] -"+YTSubConvCallCall_return+"\n")
@@ -124,7 +124,7 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
                             convertedsubfile = glob.glob(dldir+"/*.ass")
                             VideoFile = glob.glob(dldir+"/*.mkv")
                             VideoFileEdited = VideoFile[0]+".edited.mkv"
-                            FFmpegMergeSubCall = subprocess.Popen(["ffmpeg", "-y","-hide_banner","-loglevel","error", "-i", VideoFile[0], "-i", convertedsubfile[0], "-c", "copy", VideoFileEdited],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, universal_newlines=True)
+                            FFmpegMergeSubCall = subprocess.Popen(["ffmpeg", "-y","-hide_banner","-loglevel","error", "-i", VideoFile[0], "-i", convertedsubfile[0], "-c", "copy", VideoFileEdited],stdout=subprocess.PIPE,stderr=subprocess.PIPE, close_fds=True, encoding='utf-8')
                             #FFmpegMergeSubCall = subprocess.Popen(["ffmpeg -y -i "+'"'+VideoFile[0]+'"'+" -i "+'"'+convertedsubfile[0]+'"'+" -c copy "+'"'+VideoFile[0]+"edited.mkv"+'"'], shell=True, stdout=subprocess.PIPE, close_fds=True, universal_newlines=True)
                             FFmpegMergeSubCall_return,FFmpegMergeSubCall_error = FFmpegMergeSubCall.communicate()
                             if(logLevel=="DEBUG"):
@@ -137,12 +137,18 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
                             os.remove(str(convertedsubfile[0]))
                             os.replace(VideoFileEdited, str(VideoFile[0]))
                             FinalFile = str(VideoFile[0])
-                            if (postdownloadscript == "none"):
-                                continue
-                            else:
-                                
+                    else:
+                        FinalFileGlob = glob.glob(dldir+"/*.mkv")
+                        #print(FinalFileGlob)
+                        if not FinalFileGlob:
+                            continue
+                        FinalFile = str(FinalFileGlob[0])
+                    if (postdownloadscript == "none"):
+                        continue
+                    else:
+                        postexec.executePostexec(FinalFile,logWriter,dldir)    
                                 #rclone_move.rclonemove(FinalFile,logWriter,dldir)
-                                postexec.executePostexec(FinalFile,logWriter,dldir)
+                                #postexec.executePostexec(FinalFile,logWriter,dldir)
                                 
                                 #STATT HIER DIRECT DEN RCLONE UPLOAD MACHEN EINFACH HIER EINE ANDERE .py STARTEN LASSEN, VARs ÜBERGEBEN UND DANN IN DER CONFIG MITGEBEN WELCHE .py GESTARTET WERDEN SOLL, Z.B EINFACH EINEN ORDNER PLUGINS MACHEN UND DA EIN 
                                 #FERTIGES RCLONE PLUGIN LIEFERN
