@@ -23,3 +23,8 @@ Downloader
 
 
 Thanks to the yt-dl/yt-dlp Team, kethsar for ytarchive and arcusmaximus for YTSubConverter, you guys make archiving Youtube videos really easy!
+
+
+
+### Known problems
+Installing mono also adds a startup process ("/usr/bin/mono /usr/lib/mono/4.5/xsp4.exe --port 8084 --address 0.0.0.0 --appconfigdir /etc/xsp4 --nonstop") which (at least for me) used a good chunk of CPU load, to disable it just do `sudo update-rc.d mono-xsp4 stop`
