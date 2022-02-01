@@ -79,7 +79,7 @@ if (os.path.isfile(pwd+"/dl_batch.txt")):
         #Old tmpl with video title below, outdated
         #'outtmpl': dldir+"%(channel)s-(%(id)s)-%(upload_date)s - %(title)s.%(ext)s",
         #'outtmpl': dldir+"%(channel)s-(%(id)s)-%(upload_date)s - %(title)s.%(ext)s",
-        'outtmpl': dldir+"%(channel)s-(%(id)s)-%(upload_date)s.%(ext)s",
+        'outtmpl': dldir+"%(upload_date)s-(%(id)s).%(ext)s",
         #'writedescription': True,
         #'writeinfojson': True,
         'postprocessors': [{
