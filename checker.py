@@ -5,15 +5,18 @@ import subprocess
 import configparser
 config = configparser.ConfigParser()
 pwd=os.getcwd()
-from datetime import datetime
+from datetime import *
 datumHeute = datetime.date(datetime.now()).strftime("%Y%m%d")
 import time
+import yt_dlp
 from tqdm import tqdm
+from dateutil.parser import isoparse
 print("####################################################################################################\n############################### KAZ ARCHIVER - CHECKER #############################################\n####################################################################################################")
 
 if (os.path.isfile(pwd+"/config.ini")):
     config.read(pwd+'/config.ini')
     dlDir = config['CHECKER']['downloaddir']
+    cookiefile = config['DOWNLOADER']['cookiefile']
 
 else:
     print("ERROR: NO CONFIG FILE! Exiting...")
@@ -30,18 +33,48 @@ with open(pwd+"/check_batch.txt", 'r') as checkbatchcount:
 
 
 if (os.path.isfile(pwd+"/check_batch.txt")):
+    ydl_opts = {
+#    'listformats': 'true',
+    'cookiefile': cookiefile
+    }
     logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
     logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Process started\n")
     logWriter.close()
     with open(pwd+"/check_batch.txt") as check_batch:
         for line in check_batch:
-            videoIDedit = re.search("(\?v=)(.*)", str(line))
-            videoID = videoIDedit.group(2)
-            #print("Hier line: "+line.rstrip())
-            ytdlpCall = subprocess.Popen("yt-dlp -F --cookies /opt/archiving/cookies/ytcookies.txt "+line.rstrip()+" | perl -ne '/(https \| vp9)/ && print'", shell=True, stdout=subprocess.PIPE, close_fds=True, universal_newlines=True)
-            ytdlpCall_return = ytdlpCall.communicate()[0]
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    videoresult = ydl.extract_info(line, download=False) 
+                    formats = videoresult.get('formats', [videoresult])
+                    video_date = videoresult.get('upload_date', None)
+                    #video_uploader = videoresult.get('uploader', None)
+                    video_id = videoresult.get('id', None)
+                    datetoday = datetime.now()
+            except Exception as e:
+                if "copyright" in str(e):
+                    #print("copyright")
+                    ErrorType= "Copyright"
+                elif "members-only" in str(e):
+                    #print("member only")
+                    ErrorType= "Member-only locked"
+                elif "Private" in str(e):
+                    #print("private")
+                    ErrorType= "Privated"
+                elif "Video unavailable" in str(e):
+                    #print("Video removed or Channel terminated")
+                    ErrorType= "Removed"
+                else:
+                    #print("unknown case")
+                    ErrorType= "UNKNOWN ERROR"
+                ErrorBatchWriter = open (pwd+"/error_batch.csv", "a+")
+                ErrorBatchWriter.write(ErrorType+";"+line.replace('\n','')+";"+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
+                #line enthält einen umbruch, musste anders machen
+                ErrorBatchWriter.close()
+                continue
+            
+
             #print(ytdlpCall_return)
-            if (ytdlpCall_return != ""):
+            if ("https vp9" in formats or "https av01" in formats):
                 linkWriteAdd = open (dlDir+"/dl_batch.txt", "a+")
                 linkWriteAdd.write(line)
                 linkWriteAdd.close()
@@ -49,7 +82,7 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 pbar.update(n=1)
 
                 logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
-                logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+videoID+"] converted, adding to downloader and removing queue...\n")
+                logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+line.replace('\n','')+"] converted, adding to downloader and removing queue...\n")
                 logWriter.close()
             else:
                 linkWriteRequeue = open (pwd+"/next_queue.txt", "a+")
@@ -59,7 +92,7 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 pbar.update(n=1)
 
                 logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
-                logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+videoID+"] not converted yet, keeping in queue...\n")
+                logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+line.replace('\n','')+"] not converted yet, keeping in queue...\n")
                 logWriter.close()
     os.replace(pwd+"/next_queue.txt", pwd+"/check_batch.txt")
     logWriter = open (pwd+"/logs/"+datumHeute+"_checker.log", "a+")
