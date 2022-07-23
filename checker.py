@@ -50,21 +50,24 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                     #video_uploader = videoresult.get('uploader', None)
                     video_id = videoresult.get('id', None)
                     datetoday = datetime.now()
+                    for f in formats:
+                        if f['protocol'] == 'https':
+                            print(f['format_id'],f['protocol'], f['vcodec'])
             except Exception as e:
                 if "copyright" in str(e):
-                    #print("copyright")
+                    print("copyright")
                     ErrorType= "Copyright"
                 elif "members-only" in str(e):
-                    #print("member only")
+                    print("member only")
                     ErrorType= "Member-only locked"
                 elif "Private" in str(e):
-                    #print("private")
+                    print("private")
                     ErrorType= "Privated"
                 elif "Video unavailable" in str(e):
-                    #print("Video removed or Channel terminated")
+                    print("Video removed or Channel terminated")
                     ErrorType= "Removed"
                 else:
-                    #print("unknown case")
+                    print("unknown case")
                     ErrorType= "UNKNOWN ERROR"
                 ErrorBatchWriter = open (pwd+"/error_batch.csv", "a+")
                 ErrorBatchWriter.write(ErrorType+";"+line.replace('\n','')+";"+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+"\n")
@@ -72,9 +75,9 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 ErrorBatchWriter.close()
                 continue
             
-
-            #print(ytdlpCall_return)
+            #print(formats)
             if ("https vp9" in formats or "https av01" in formats):
+                print("VP9 or AV01")
                 linkWriteAdd = open (dlDir+"/dl_batch.txt", "a+")
                 linkWriteAdd.write(line)
                 linkWriteAdd.close()
@@ -85,6 +88,7 @@ if (os.path.isfile(pwd+"/check_batch.txt")):
                 logWriter.write(datetime.time(datetime.now()).strftime("[%H:%M:%S]")+" [INFO] - Video ID ["+line.replace('\n','')+"] converted, adding to downloader and removing queue...\n")
                 logWriter.close()
             else:
+                print("not VP9 or AV01")
                 linkWriteRequeue = open (pwd+"/next_queue.txt", "a+")
                 linkWriteRequeue.write(line)
                 linkWriteRequeue.close()
